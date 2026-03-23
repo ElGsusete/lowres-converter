@@ -9,7 +9,7 @@ export function OutputPanel({ outputUrl, outputName, mediaKind }: OutputPanelPro
     return (
       <section className="card">
         <h2>Output</h2>
-        <p>No generated media yet.</p>
+        <div className="outputPlaceholder">No generated media yet.</div>
       </section>
     )
   }

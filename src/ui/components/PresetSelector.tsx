@@ -16,9 +16,9 @@ export function PresetSelector({
 }: PresetSelectorProps) {
   return (
     <section className="card">
-      <h2>Presets</h2>
+      <h2>Quality settings</h2>
       {disabled ? <p className="muted">Select a file to enable preset selection.</p> : null}
-      <div className="presetGrid">
+      <div className="presetList">
         {PRESET_IDS.map((presetId) => {
           const preset = getPreset(mediaKind, presetId)
           return (
@@ -29,8 +29,13 @@ export function PresetSelector({
               onClick={() => onSelectPreset(preset.id)}
               type="button"
             >
-              <strong>{preset.label}</strong>
-              <span>{preset.description}</span>
+              <span className="presetRadio" aria-hidden="true">
+                {selectedPreset === preset.id ? '●' : '○'}
+              </span>
+              <span className="presetText">
+                <strong>{preset.label}</strong>
+                <small>{preset.description}</small>
+              </span>
             </button>
           )
         })}

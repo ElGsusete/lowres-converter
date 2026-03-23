@@ -5,6 +5,7 @@ interface FileDropzoneProps {
 export function FileDropzone({ onFileSelected }: FileDropzoneProps) {
   return (
     <section className="card">
+      <h2>Drop Zone</h2>
       <label className="dropzone" htmlFor="fileInput">
         <input
           id="fileInput"
@@ -18,7 +19,7 @@ export function FileDropzone({ onFileSelected }: FileDropzoneProps) {
           }}
         />
         <strong>Drop media or choose a file</strong>
-        <span>Audio/Video, max 250MB. Processed locally in your browser.</span>
+        <span>Audio/Video, max 250MB. Processed locally.</span>
       </label>
     </section>
   )
