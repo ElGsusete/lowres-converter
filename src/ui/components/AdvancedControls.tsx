@@ -6,6 +6,57 @@ interface AdvancedControlsProps {
   onChange: (settings: TranscodeSettings) => void
 }
 
+interface NumericSliderControlProps {
+  label: string
+  helpText: string
+  disabled: boolean
+  min: number
+  max: number
+  step?: number
+  value: number
+  onChange: (value: number) => void
+}
+
+function NumericSliderControl({
+  label,
+  helpText,
+  disabled,
+  min,
+  max,
+  step = 1,
+  value,
+  onChange,
+}: NumericSliderControlProps) {
+  return (
+    <label className="controlField">
+      {label}
+      <small>{helpText}</small>
+      <div className="sliderRow">
+        <input
+          className="sliderInput"
+          disabled={disabled}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(event) => onChange(Number(event.currentTarget.value))}
+        />
+        <input
+          className="numberInput"
+          disabled={disabled}
+          type="number"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(event) => onChange(Number(event.currentTarget.value))}
+        />
+      </div>
+    </label>
+  )
+}
+
 export function AdvancedControls({ settings, disabled = false, onChange }: AdvancedControlsProps) {
   return (
     <section className="card">
@@ -14,77 +65,55 @@ export function AdvancedControls({ settings, disabled = false, onChange }: Advan
       <div className="controls">
         {settings.kind === 'video' ? (
           <>
-            <label>
-              Image quality (resolution)
-              <small>Lower values = smaller file size and a more pixelated look.</small>
-              <input
-                disabled={disabled}
-                type="number"
-                min={144}
-                max={720}
-                value={settings.resolutionHeight}
-                onChange={(event) =>
-                  onChange({ ...settings, resolutionHeight: Number(event.currentTarget.value) })
-                }
-              />
-            </label>
-            <label>
-              Video smoothness (FPS)
-              <small>Lower values = choppier motion for a meme/vintage style.</small>
-              <input
-                disabled={disabled}
-                type="number"
-                min={8}
-                max={30}
-                value={settings.fps}
-                onChange={(event) => onChange({ ...settings, fps: Number(event.currentTarget.value) })}
-              />
-            </label>
-            <label>
-              Video size and sharpness
-              <small>Controls how large the video file is and how clear it looks.</small>
-              <input
-                disabled={disabled}
-                type="number"
-                min={120}
-                max={1500}
-                value={settings.videoBitrateKbps}
-                onChange={(event) =>
-                  onChange({ ...settings, videoBitrateKbps: Number(event.currentTarget.value) })
-                }
-              />
-            </label>
+            <NumericSliderControl
+              label="Image quality (resolution)"
+              helpText="Lower values = smaller file size and a more pixelated look."
+              disabled={disabled}
+              min={144}
+              max={720}
+              value={settings.resolutionHeight}
+              onChange={(resolutionHeight) => onChange({ ...settings, resolutionHeight })}
+            />
+            <NumericSliderControl
+              label="Video smoothness (FPS)"
+              helpText="Lower values = choppier motion for a meme/vintage style."
+              disabled={disabled}
+              min={8}
+              max={30}
+              value={settings.fps}
+              onChange={(fps) => onChange({ ...settings, fps })}
+            />
+            <NumericSliderControl
+              label="Video size and sharpness"
+              helpText="Controls how large the video file is and how clear it looks."
+              disabled={disabled}
+              min={120}
+              max={1500}
+              value={settings.videoBitrateKbps}
+              onChange={(videoBitrateKbps) => onChange({ ...settings, videoBitrateKbps })}
+            />
           </>
         ) : null}
 
-        <label>
-          Audio quality
-          <small>Lower values = more compressed sound with less detail.</small>
-          <input
-            disabled={disabled}
-            type="number"
-            min={16}
-            max={192}
-            value={settings.audioBitrateKbps}
-            onChange={(event) =>
-              onChange({ ...settings, audioBitrateKbps: Number(event.currentTarget.value) })
-            }
-          />
-        </label>
-        <label>
-          Voice and sound clarity
-          <small>Lower values = more retro, phone-like audio.</small>
-          <input
-            disabled={disabled}
-            type="number"
-            min={8000}
-            max={44100}
-            value={settings.audioSampleRateHz}
-            onChange={(event) =>
-              onChange({ ...settings, audioSampleRateHz: Number(event.currentTarget.value) })
-            }
-          />
-        </label>
+        <NumericSliderControl
+          label="Audio quality"
+          helpText="Lower values = more compressed sound with less detail."
+          disabled={disabled}
+          min={16}
+          max={192}
+          value={settings.audioBitrateKbps}
+          onChange={(audioBitrateKbps) => onChange({ ...settings, audioBitrateKbps })}
+        />
+        <NumericSliderControl
+          label="Voice and sound clarity"
+          helpText="Lower values = more retro, phone-like audio."
+          disabled={disabled}
+          min={8000}
+          max={44100}
+          step={50}
+          value={settings.audioSampleRateHz}
+          onChange={(audioSampleRateHz) => onChange({ ...settings, audioSampleRateHz })}
+        />
       </div>
     </section>
   )

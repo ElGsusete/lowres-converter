@@ -1,12 +1,13 @@
 interface FileDropzoneProps {
   onFileSelected: (file: File) => void
+  selectedFileName?: string | null
 }
 
-export function FileDropzone({ onFileSelected }: FileDropzoneProps) {
+export function FileDropzone({ onFileSelected, selectedFileName = null }: FileDropzoneProps) {
   return (
     <section className="card">
       <h2>Drop Zone</h2>
-      <label className="dropzone" htmlFor="fileInput">
+      <label className={selectedFileName ? 'dropzone hasFile' : 'dropzone'} htmlFor="fileInput">
         <input
           id="fileInput"
           type="file"
@@ -18,8 +19,8 @@ export function FileDropzone({ onFileSelected }: FileDropzoneProps) {
             }
           }}
         />
-        <strong>Drop media or choose a file</strong>
-        <span>Audio/Video, max 250MB. Processed locally.</span>
+        <strong>{selectedFileName ? 'File loaded successfully' : 'Drop media or choose a file'}</strong>
+        <span>{selectedFileName ? selectedFileName : 'Audio/Video, max 250MB. Processed locally.'}</span>
       </label>
     </section>
   )

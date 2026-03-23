@@ -9,12 +9,51 @@ import { getPreset } from './domain/media/presets'
 import { useConverter } from './ui/hooks/useConverter'
 import './ui/styles/app.css'
 
+interface ActionBarProps {
+  outputUrl: string | null
+  outputName: string | null
+  isProcessing: boolean
+  canProcess: boolean
+  onCancel: () => void
+  onProcess: () => void
+}
+
+function ActionBar({ outputUrl, outputName, isProcessing, canProcess, onCancel, onProcess }: ActionBarProps) {
+  return (
+    <section className="actionBar" aria-label="Primary conversion actions">
+      <div className="actionRow">
+        {outputUrl && outputName ? (
+          <a className="button secondary" href={outputUrl} download={outputName}>
+            Download
+          </a>
+        ) : (
+          <button className="button secondary" disabled type="button">
+            Download
+          </button>
+        )}
+        <button className="button secondary" disabled={!isProcessing} onClick={onCancel} type="button">
+          Cancel
+        </button>
+        <button className="button primary" disabled={!canProcess} onClick={onProcess} type="button">
+          {isProcessing ? 'Processing...' : 'PROCESS FILE'}
+        </button>
+      </div>
+    </section>
+  )
+}
+
 function App() {
   const compatibility = getCompatibilityState()
   const { state, effectiveSettings, setFile, setPreset, updateCustomSettings, startConversion, cancelConversion } =
     useConverter()
   const displayKind = state.mediaKind ?? 'video'
   const displaySettings = effectiveSettings ?? getPreset(displayKind, state.selectedPreset).settings
+  const statusText = state.isProcessing
+    ? 'Working...'
+    : state.selectedFile
+      ? `Loaded: ${state.selectedFile.name}`
+      : 'Ready - no file loaded'
+  const canProcess = Boolean(state.selectedFile) && !state.isProcessing && compatibility.supported
 
   return (
     <main className="desktop">
@@ -38,7 +77,7 @@ function App() {
 
           <section className="layout">
             <section className="topRow">
-              <FileDropzone onFileSelected={setFile} />
+              <FileDropzone onFileSelected={setFile} selectedFileName={state.selectedFile?.name ?? null} />
               <PresetSelector
                 mediaKind={displayKind}
                 selectedPreset={state.selectedPreset}
@@ -58,33 +97,17 @@ function App() {
             ) : null}
           </section>
 
-          <section className="actionBar" aria-label="Primary conversion actions">
-            <div className="actionRow">
-              {state.outputUrl && state.outputName ? (
-                <a className="button secondary" href={state.outputUrl} download={state.outputName}>
-                  Download
-                </a>
-              ) : (
-                <button className="button secondary" disabled type="button">
-                  Download
-                </button>
-              )}
-              <button className="button secondary" disabled={!state.isProcessing} onClick={cancelConversion} type="button">
-                Cancel
-              </button>
-              <button
-                className="button primary"
-                disabled={!state.selectedFile || state.isProcessing || !compatibility.supported}
-                onClick={() => void startConversion()}
-                type="button"
-              >
-                {state.isProcessing ? 'Processing...' : 'Process file'}
-              </button>
-            </div>
-          </section>
+          <ActionBar
+            outputUrl={state.outputUrl}
+            outputName={state.outputName}
+            isProcessing={state.isProcessing}
+            canProcess={canProcess}
+            onCancel={cancelConversion}
+            onProcess={() => void startConversion()}
+          />
 
           <footer className="statusBar">
-            <span>{state.isProcessing ? 'Working...' : 'Ready'}</span>
+            <span>{statusText}</span>
           </footer>
         </section>
       </div>
