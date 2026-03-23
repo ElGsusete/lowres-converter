@@ -29,4 +29,22 @@ describe('buildFfmpegArgs', () => {
     expect(args).toContain('-ac')
     expect(args).toContain('1')
   })
+
+  it('clamps unsafe numeric values to safe ranges', () => {
+    const args = buildFfmpegArgs('in.mp4', 'out.mp4', {
+      kind: 'video',
+      resolutionHeight: 20,
+      fps: 1,
+      videoBitrateKbps: 0,
+      audioBitrateKbps: 1,
+      audioSampleRateHz: 100,
+      outputExtension: 'mp4',
+    })
+
+    expect(args).toContain('scale=-2:144')
+    expect(args).toContain('8')
+    expect(args).toContain('120k')
+    expect(args).toContain('16k')
+    expect(args).toContain('8000')
+  })
 })

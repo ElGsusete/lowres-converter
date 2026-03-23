@@ -5,6 +5,7 @@ import { validateInputFile } from '../../application/validation/fileValidation'
 import { FfmpegWorkerClient } from '../../infrastructure/transcoding/ffmpegWorkerClient'
 import { MEDIA_LIMITS } from '../../domain/media/limits'
 import { recordTelemetry } from '../../infrastructure/telemetry/telemetry'
+import { normalizeTranscodeSettings } from '../../domain/media/settings'
 
 interface ConverterState {
   selectedFile: File | null
@@ -94,7 +95,7 @@ export function useConverter() {
   }
 
   function updateCustomSettings(settings: TranscodeSettings): void {
-    setState((prev) => ({ ...prev, customSettings: settings }))
+    setState((prev) => ({ ...prev, customSettings: normalizeTranscodeSettings(settings) }))
   }
 
   async function startConversion(): Promise<void> {

@@ -1,14 +1,17 @@
 import type { TranscodeSettings } from '../../domain/media/types'
+import { normalizeTranscodeSettings } from '../../domain/media/settings'
 
 export function buildFfmpegArgs(inputName: string, outputName: string, settings: TranscodeSettings): string[] {
-  if (settings.kind === 'audio') {
+  const safeSettings = normalizeTranscodeSettings(settings)
+
+  if (safeSettings.kind === 'audio') {
     return [
       '-i',
       inputName,
       '-b:a',
-      `${settings.audioBitrateKbps}k`,
+      `${safeSettings.audioBitrateKbps}k`,
       '-ar',
-      String(settings.audioSampleRateHz),
+      String(safeSettings.audioSampleRateHz),
       '-ac',
       '1',
       outputName,
@@ -19,15 +22,15 @@ export function buildFfmpegArgs(inputName: string, outputName: string, settings:
     '-i',
     inputName,
     '-vf',
-    `scale=-2:${settings.resolutionHeight}`,
+    `scale=-2:${safeSettings.resolutionHeight}`,
     '-r',
-    String(settings.fps),
+    String(safeSettings.fps),
     '-b:v',
-    `${settings.videoBitrateKbps}k`,
+    `${safeSettings.videoBitrateKbps}k`,
     '-b:a',
-    `${settings.audioBitrateKbps}k`,
+    `${safeSettings.audioBitrateKbps}k`,
     '-ar',
-    String(settings.audioSampleRateHz),
+    String(safeSettings.audioSampleRateHz),
     outputName,
   ]
 }
