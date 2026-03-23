@@ -1,0 +1,32 @@
+import { describe, expect, it } from 'vitest'
+import { buildFfmpegArgs } from './buildCommand'
+
+describe('buildFfmpegArgs', () => {
+  it('creates video args', () => {
+    const args = buildFfmpegArgs('in.mp4', 'out.mp4', {
+      kind: 'video',
+      resolutionHeight: 240,
+      fps: 12,
+      videoBitrateKbps: 280,
+      audioBitrateKbps: 24,
+      audioSampleRateHz: 12000,
+      outputExtension: 'mp4',
+    })
+    expect(args).toContain('-vf')
+    expect(args).toContain('scale=-2:240')
+  })
+
+  it('creates audio args', () => {
+    const args = buildFfmpegArgs('in.wav', 'out.mp3', {
+      kind: 'audio',
+      resolutionHeight: 0,
+      fps: 0,
+      videoBitrateKbps: 0,
+      audioBitrateKbps: 32,
+      audioSampleRateHz: 16000,
+      outputExtension: 'mp3',
+    })
+    expect(args).toContain('-ac')
+    expect(args).toContain('1')
+  })
+})
