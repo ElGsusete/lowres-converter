@@ -1,11 +1,14 @@
 /// <reference lib="webworker" />
 import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile } from '@ffmpeg/util'
 import { buildFfmpegArgs } from '../../application/transcoding/buildCommand'
 import type { WorkerRequestMessage, WorkerResponseMessage } from './workerTypes'
 
 const ffmpeg = new FFmpeg()
 let abortRequested = false
+
+ffmpeg.on('log', ({ type, message }) => {
+  console.log(`[ffmpeg][${type}] ${message}`)
+})
 
 const worker = self as unknown as Worker
 
@@ -38,7 +41,7 @@ worker.onmessage = async (event: MessageEvent<WorkerRequestMessage>) => {
       }
     })
 
-    await ffmpeg.writeFile(inputName, await fetchFile(new Blob([fileBuffer])))
+    await ffmpeg.writeFile(inputName, new Uint8Array(fileBuffer))
     await ffmpeg.exec(args)
 
     const outputFile = await ffmpeg.readFile(outputName)
@@ -50,16 +53,18 @@ worker.onmessage = async (event: MessageEvent<WorkerRequestMessage>) => {
     await ffmpeg.deleteFile(inputName)
     await ffmpeg.deleteFile(outputName)
 
-    const mimeType = settings.kind === 'audio' ? 'audio/mpeg' : 'video/mp4'
+    const mimeType = settings.kind !== 'audio' ? 'video/mp4' : settings.outputExtension === 'wav' ? 'audio/wav' : 'audio/mpeg'
     const success: WorkerResponseMessage = {
       type: 'SUCCESS',
       payload: { outputBuffer, outputName, mimeType },
     }
     worker.postMessage(success, [outputBuffer])
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('[ffmpeg] Transcoding failed:', error)
     const message: WorkerResponseMessage = {
       type: 'ERROR',
-      payload: { message: error instanceof Error ? error.message : 'Unexpected transcoding error.' },
+      payload: { message: errorMessage || 'Unexpected transcoding error.' },
     }
     worker.postMessage(message)
   }

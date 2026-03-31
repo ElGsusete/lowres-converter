@@ -8,6 +8,8 @@ const defaultSettingsByKind: Record<MediaKind, TranscodeSettings> = {
     videoBitrateKbps: 450,
     audioBitrateKbps: 48,
     audioSampleRateHz: 22050,
+    audioVolumePercent: 100,
+    videoNoise: 0,
     outputExtension: 'mp4',
   },
   audio: {
@@ -17,6 +19,8 @@ const defaultSettingsByKind: Record<MediaKind, TranscodeSettings> = {
     videoBitrateKbps: 0,
     audioBitrateKbps: 32,
     audioSampleRateHz: 16000,
+    audioVolumePercent: 100,
+    videoNoise: 0,
     outputExtension: 'mp3',
   },
 }

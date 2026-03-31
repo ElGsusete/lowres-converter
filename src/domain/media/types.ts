@@ -9,7 +9,9 @@ export interface TranscodeSettings {
   videoBitrateKbps: number
   audioBitrateKbps: number
   audioSampleRateHz: number
-  outputExtension: 'mp4' | 'webm' | 'mp3'
+  audioVolumePercent: number
+  videoNoise: number
+  outputExtension: 'mp4' | 'webm' | 'mp3' | 'wav'
 }
 
 export interface PresetDefinition {

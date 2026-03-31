@@ -114,6 +114,26 @@ export function AdvancedControls({ settings, disabled = false, onChange }: Advan
           value={settings.audioSampleRateHz}
           onChange={(audioSampleRateHz) => onChange({ ...settings, audioSampleRateHz })}
         />
+        <NumericSliderControl
+          label="Audio volume (%)"
+          helpText="Above 100% the audio clips and distorts."
+          disabled={disabled}
+          min={10}
+          max={400}
+          value={settings.audioVolumePercent}
+          onChange={(audioVolumePercent) => onChange({ ...settings, audioVolumePercent })}
+        />
+        {settings.kind === 'video' ? (
+          <NumericSliderControl
+            label="Video noise"
+            helpText="Adds static grain. Higher values = more visual corruption."
+            disabled={disabled}
+            min={0}
+            max={80}
+            value={settings.videoNoise}
+            onChange={(videoNoise) => onChange({ ...settings, videoNoise })}
+          />
+        ) : null}
       </div>
     </section>
   )

@@ -17,6 +17,8 @@ interface ConverterState {
   outputName: string | null
   isProcessing: boolean
   mediaKind: MediaKind | null
+  passes: number
+  currentPass: number
 }
 
 const initialState: ConverterState = {
@@ -29,17 +31,34 @@ const initialState: ConverterState = {
   outputName: null,
   isProcessing: false,
   mediaKind: null,
+  passes: 1,
+  currentPass: 1,
 }
 
 export function useConverter() {
   const [state, setState] = useState<ConverterState>(initialState)
   const lastRunRef = useRef<number>(0)
   const clientRef = useRef<FfmpegWorkerClient | null>(null)
+  const remainingPassesRef = useRef<number>(0)
+  const totalPassesRef = useRef<number>(1)
+  const activeSettingsRef = useRef<TranscodeSettings | null>(null)
+  const finalSettingsRef = useRef<TranscodeSettings | null>(null)
 
   useEffect(() => {
     clientRef.current = new FfmpegWorkerClient({
       onProgress: (ratio) => setState((prev) => ({ ...prev, progress: ratio })),
       onSuccess: (output, outputName) => {
+        if (remainingPassesRef.current > 0) {
+          remainingPassesRef.current -= 1
+          const currentPass = totalPassesRef.current - remainingPassesRef.current
+          setState((prev) => ({ ...prev, progress: 0, currentPass }))
+          const nextFile = new File([output], outputName)
+          const nextSettings = remainingPassesRef.current === 0
+            ? finalSettingsRef.current!
+            : activeSettingsRef.current!
+          void clientRef.current?.transcode(nextFile, nextSettings)
+          return
+        }
         const outputUrl = URL.createObjectURL(output)
         setState((prev) => ({
           ...prev,
@@ -98,6 +117,10 @@ export function useConverter() {
     setState((prev) => ({ ...prev, customSettings: normalizeTranscodeSettings(settings) }))
   }
 
+  function setPasses(passes: number): void {
+    setState((prev) => ({ ...prev, passes }))
+  }
+
   async function startConversion(): Promise<void> {
     const now = Date.now()
     if (now - lastRunRef.current < MEDIA_LIMITS.cooldownMs) {
@@ -111,12 +134,20 @@ export function useConverter() {
       return
     }
 
-    setState((prev) => ({ ...prev, isProcessing: true, error: null, progress: 0 }))
+    const needsWavIntermediate = state.passes > 1 && effectiveSettings.kind === 'audio'
+    remainingPassesRef.current = state.passes - 1
+    totalPassesRef.current = state.passes
+    activeSettingsRef.current = needsWavIntermediate
+      ? { ...effectiveSettings, outputExtension: 'wav' as const }
+      : effectiveSettings
+    finalSettingsRef.current = effectiveSettings
+    setState((prev) => ({ ...prev, isProcessing: true, error: null, progress: 0, currentPass: 1 }))
     recordTelemetry({ name: 'conversion_started', timestamp: now })
     await clientRef.current?.transcode(state.selectedFile, effectiveSettings)
   }
 
   function cancelConversion(): void {
+    remainingPassesRef.current = 0
     clientRef.current?.cancel()
     setState((prev) => ({ ...prev, isProcessing: false, error: 'Conversion canceled.' }))
   }
@@ -127,6 +158,7 @@ export function useConverter() {
     setFile,
     setPreset,
     updateCustomSettings,
+    setPasses,
     startConversion,
     cancelConversion,
   }

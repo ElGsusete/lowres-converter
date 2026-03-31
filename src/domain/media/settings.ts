@@ -10,6 +10,10 @@ const MIN_AUDIO_BITRATE_KBPS = 16
 const MAX_AUDIO_BITRATE_KBPS = 192
 const MIN_AUDIO_SAMPLE_RATE_HZ = 8000
 const MAX_AUDIO_SAMPLE_RATE_HZ = 44100
+const MIN_AUDIO_VOLUME_PERCENT = 10
+const MAX_AUDIO_VOLUME_PERCENT = 400
+const MIN_VIDEO_NOISE = 0
+const MAX_VIDEO_NOISE = 80
 
 function clamp(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) {
@@ -25,21 +29,21 @@ export function normalizeTranscodeSettings(settings: TranscodeSettings): Transco
       resolutionHeight: 0,
       fps: 0,
       videoBitrateKbps: 0,
+      videoNoise: 0,
       audioBitrateKbps: clamp(settings.audioBitrateKbps, MIN_AUDIO_BITRATE_KBPS, MAX_AUDIO_BITRATE_KBPS),
       audioSampleRateHz: clamp(settings.audioSampleRateHz, MIN_AUDIO_SAMPLE_RATE_HZ, MAX_AUDIO_SAMPLE_RATE_HZ),
+      audioVolumePercent: clamp(settings.audioVolumePercent, MIN_AUDIO_VOLUME_PERCENT, MAX_AUDIO_VOLUME_PERCENT),
     }
   }
 
   return {
     ...settings,
-    resolutionHeight: clamp(
-      settings.resolutionHeight,
-      MIN_VIDEO_RESOLUTION_HEIGHT,
-      MAX_VIDEO_RESOLUTION_HEIGHT,
-    ),
+    resolutionHeight: clamp(settings.resolutionHeight, MIN_VIDEO_RESOLUTION_HEIGHT, MAX_VIDEO_RESOLUTION_HEIGHT),
     fps: clamp(settings.fps, MIN_VIDEO_FPS, MAX_VIDEO_FPS),
     videoBitrateKbps: clamp(settings.videoBitrateKbps, MIN_VIDEO_BITRATE_KBPS, MAX_VIDEO_BITRATE_KBPS),
     audioBitrateKbps: clamp(settings.audioBitrateKbps, MIN_AUDIO_BITRATE_KBPS, MAX_AUDIO_BITRATE_KBPS),
     audioSampleRateHz: clamp(settings.audioSampleRateHz, MIN_AUDIO_SAMPLE_RATE_HZ, MAX_AUDIO_SAMPLE_RATE_HZ),
+    audioVolumePercent: clamp(settings.audioVolumePercent, MIN_AUDIO_VOLUME_PERCENT, MAX_AUDIO_VOLUME_PERCENT),
+    videoNoise: clamp(settings.videoNoise, MIN_VIDEO_NOISE, MAX_VIDEO_NOISE),
   }
 }
