@@ -10,6 +10,8 @@ describe('buildFfmpegArgs', () => {
       videoBitrateKbps: 280,
       audioBitrateKbps: 24,
       audioSampleRateHz: 12000,
+      audioVolumePercent: 100,
+      videoNoise: 0,
       outputExtension: 'mp4',
     })
     expect(args).toContain('-vf')
@@ -24,6 +26,8 @@ describe('buildFfmpegArgs', () => {
       videoBitrateKbps: 0,
       audioBitrateKbps: 32,
       audioSampleRateHz: 16000,
+      audioVolumePercent: 100,
+      videoNoise: 0,
       outputExtension: 'mp3',
     })
     expect(args).toContain('-ac')
@@ -38,6 +42,8 @@ describe('buildFfmpegArgs', () => {
       videoBitrateKbps: 0,
       audioBitrateKbps: 1,
       audioSampleRateHz: 100,
+      audioVolumePercent: 100,
+      videoNoise: 0,
       outputExtension: 'mp4',
     })
 
